@@ -7,7 +7,7 @@
     public $email;
     public const personType = 'client';
 
-    public final function login()
+    public  function login()
     {
         echo "Login (email & password) <br>";
     }
@@ -31,10 +31,10 @@ class seller extends person {
     public $prodcutType;
     public const personType = 'seller';
     #prevent override
-    // public function login()
-    // {
-    //     echo "Login (phone & password) <br>";
-    // }
+    public function login()
+    {
+        echo "Login (phone & password) <br>";
+    }
 
     public function getType()
     {
