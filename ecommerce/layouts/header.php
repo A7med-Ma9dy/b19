@@ -1,10 +1,13 @@
 <!doctype html>
+<?php 
+include "vendor/autoload.php";
+?>
 <html class="no-js" lang="zxx">
 
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Sabujcha - Matcha eCommerce Bootstrap4 Template</title>
+    <title><?= $title ?></title>
     <meta name="description" content="">
     <meta name="robots" content="noindex, follow" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
