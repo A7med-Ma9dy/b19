@@ -7,7 +7,7 @@ class Connection {
     private $DBPassword = '';
     private $DBDatabaseName = 'php_ecommerce';
     private $DBPort = 3307;
-    private $conn;
+    public  $conn;
     public function __construct() {
         $this->conn = new \mysqli($this->DBServerName,$this->DBUserName,$this->DBPassword,$this->DBDatabaseName,$this->DBPort);
         // if ($this->conn->connect_error) {

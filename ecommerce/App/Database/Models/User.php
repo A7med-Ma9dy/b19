@@ -1,9 +1,10 @@
 <?php
 namespace App\Database\Models;
 
+use App\Database\Models\Contracts\Crud;
 
-class User extends Model {
-    private $id, $fisrt_name , $last_name,$email , $password,$phone,$gender,
+class User extends Model implements Crud {
+    private $id, $first_name , $last_name,$email , $password,$phone,$gender,
     $status,$image,$verification_code,$email_verified_at,$created_at,$updated_at;
 
 
@@ -30,9 +31,9 @@ class User extends Model {
     /**
      * Get the value of fisrt_name
      */ 
-    public function getFisrt_name()
+    public function getFirst_name()
     {
-        return $this->fisrt_name;
+        return $this->first_name;
     }
 
     /**
@@ -40,9 +41,9 @@ class User extends Model {
      *
      * @return  self
      */ 
-    public function setFisrt_name($fisrt_name)
+    public function setFirst_name($first_name)
     {
-        $this->fisrt_name = $fisrt_name;
+        $this->first_name = $first_name;
 
         return $this;
     }
@@ -102,7 +103,7 @@ class User extends Model {
      */ 
     public function setPassword($password)
     {
-        $this->password = $password;
+        $this->password = password_hash($password,PASSWORD_BCRYPT);
 
         return $this;
     }
@@ -270,7 +271,12 @@ class User extends Model {
 
     public function create()
     {
-        # code...
+        $query = "INSERT INTO users (first_name,last_name,email,phone,password,gender,verification_code) 
+        VALUES (? ,? ,? ,? ,? ,? ,?)";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param('ssssssi',$this->fisrt_name,$this->last_name,$this->email,$this->phone,
+        $this->password,$this->gender,$this->verification_code);
+        return $stmt->execute();
     }
     public function read()
     {
@@ -284,5 +290,31 @@ class User extends Model {
     {
         # code...
     }
+
+    public function checkUserCode()
+    {
+        $query =  "SELECT * FROM users WHERE verification_code = ? AND email = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param('is',$this->verification_code,$this->email);
+        $stmt->execute();
+        return $stmt;
+    }
+    public function makeUserVerified()
+    {
+        $query = "UPDATE users SET email_verified_at = ? WHERE email = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param('ss',$this->email_verified_at,$this->email);
+        return $stmt->execute();
+    }
+    public function getUserByEmail()
+    {
+        $query =  "SELECT * FROM users WHERE  email = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param('s',$this->email);
+        $stmt->execute();
+        return $stmt;
+    }
+    
+    
 }
 

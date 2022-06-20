@@ -1,9 +1,9 @@
 <?php
 namespace App\Database\Models;
 
+use App\Database\Models\Contracts\Crud;
 
-
-class Product extends Model {
+class Product extends Model implements Crud {
     private $id,$name_en,$name_ar,$price,$code,$quantity,$desc_en,$desc_ar,$brand_id,$subcategory_id,$image,$status,
     $created_at,$updated_at;
 

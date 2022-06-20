@@ -1,5 +1,6 @@
 
 <?php 
+$title = "Home";
 include_once "layouts/header.php";
 include_once "layouts/navbar.php";
 ?>

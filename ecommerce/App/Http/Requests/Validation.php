@@ -1,6 +1,8 @@
 <?php
 namespace App\Http\Requests;
 
+use App\Database\Models\Model;
+
 class Validation {
     private array $errors = [];
     private $valueName; // first_name
@@ -25,12 +27,29 @@ class Validation {
         if(strlen($this->value) > $max){
             $this->errors[$this->valueName][__FUNCTION__] = "{$this->valueName} Must Be Less Than {$max} Characters";
         }
+        return $this;
     }
 
-    public function regex(string $pattern)
+    public function digits(int $digits)
+    {
+        if(strlen($this->value) != $digits){
+            $this->errors[$this->valueName][__FUNCTION__] = "{$this->valueName} Must Be {$digits} digits";
+        }
+        return $this;
+    }
+
+    public function integer()
+    {
+        if(!ctype_digit($this->value)){
+            $this->errors[$this->valueName][__FUNCTION__] = "{$this->valueName} Must Be Integer";
+        }
+        return $this;
+    }
+
+    public function regex(string $pattern,$message = null)
     {
         if(!preg_match($pattern,$this->value)){
-            $this->errors[$this->valueName][__FUNCTION__] = "{$this->valueName} Invalid";
+            $this->errors[$this->valueName][__FUNCTION__] = $message ?? "{$this->valueName} Invalid";
         }
         return $this;
     }
@@ -45,12 +64,28 @@ class Validation {
 
     public function unique(string $table,string $column)
     {
-        # code...
+        $model = new Model;
+        $query = "SELECT * FROM {$table} WHERE {$column} = ?";
+        $stmt = $model->conn->prepare($query);
+        $stmt->bind_param('s',$this->value);
+        $stmt->execute();
+        if($stmt->get_result()->num_rows == 1 ){
+            $this->errors[$this->valueName][__FUNCTION__] = "{$this->valueName} Already Exists";
+        }
+        return $this;
     }
 
     public function exists(string $table,string $column)
     {
-        # code...
+        $model = new Model;
+        $query = "SELECT * FROM {$table} WHERE {$column} = ?";
+        $stmt = $model->conn->prepare($query);
+        $stmt->bind_param('s',$this->value);
+        $stmt->execute();
+        if($stmt->get_result()->num_rows == 0 ){
+            $this->errors[$this->valueName][__FUNCTION__] = "{$this->valueName} Not Exists";
+        }
+        return $this;
     }
 
     /**

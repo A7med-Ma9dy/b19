@@ -1,7 +1,9 @@
-<!doctype html>
 <?php 
+ob_start();
+session_start();
 include "vendor/autoload.php";
 ?>
+<!doctype html>
 <html class="no-js" lang="zxx">
 
 <head>

@@ -1,0 +1,1 @@
+<a href="page2.php?email=asmaa@gmail.com">page 2</a>
