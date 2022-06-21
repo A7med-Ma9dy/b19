@@ -19,6 +19,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
         $user = $userData->getUserByEmail()->get_result()->fetch_object();
         if(password_verify($_POST['password'],$user->password)){
             if(!is_null($user->email_verified_at)){
+                if(isset($_POST['remember_me'])){
+                    setcookie('remember_me',$_POST['email'],time()+(84600 * 365),'/');
+                }
                 # LOGIN
                 $_SESSION['user'] = $user;
                 header('location:index.php');die;
@@ -54,9 +57,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                                         <?= $validation->getError('password') ?>
                                         <div class="button-box">
                                             <div class="login-toggle-btn">
-                                                <input type="checkbox">
+                                                <input type="checkbox" name="remember_me">
                                                 <label>Remember me</label>
-                                                <a href="#">Forgot Password?</a>
+                                                <a href="verify-email.php">Forgot Password?</a>
                                             </div>
                                             <button type="submit"><span>Login</span></button>
                                         </div>

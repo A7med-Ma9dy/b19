@@ -1,39 +1,35 @@
 <?php
 
+use App\Mails\Mailer;
 use App\Database\Models\User;
 use App\Http\Requests\Validation;
 
-$title = "Verification Code";
+$title = "Verify Email";
 include_once "layouts/header.php";
 include_once "App/Http/Middlewares/Guest.php";
 
-
 $validation = new Validation;
-$validation->validUrlEmail($_GET);
 
 if($_SERVER['REQUEST_METHOD'] == "POST"){
-    $validation->setValueName('verification_code')->setValue($_POST['verification_code'])
-    ->required()->integer()->max(999999)->min(10000)->exists('users','verification_code');
+    $validation->setValueName('email')->setValue($_POST['email'])
+    ->required()->regex('/^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/')->exists('users','email');
     if(empty($validation->getErrors())){
-        // check if code is correct
+        $code = rand(10000,99999); // 5 digits
         $user = new User;
-        $user->setEmail($_GET['email'])->setVerification_code($_POST['verification_code']);
-        if($user->checkUserCode()->get_result()->num_rows == 1){
-            date_default_timezone_set('Africa/Cairo');
-            $user->setEmail_verified_at(date('Y-m-d H:i:s'));
-            if($user->makeUserVerified()){
-                $success = "<p class='alert alert-success text-center'>* Correct Code </p>";
-                if(strlen($_POST['verification_code']) == 6){
-                    header("refresh:3;url=login.php");
-                }elseif(strlen($_POST['verification_code']) == 5){
-                    header('location:set-new-password.php?email='.$_GET['email']);
-                }
+        $user->setEmail($_POST['email'])->setVerification_code($code);
+        if($user->updateCode()){
+            $subject = "Forget Password Code";
+            $body = "<p> Hello {$_POST['email']} .</p><p> Your OTP :<b>{$code}</b> </p><p> Thank You.</p>";
+            $verificationCode = new Mailer($_POST['email'],$subject,$body);
+            if($verificationCode->send()){
+                header('location:verification-code.php?email='.$_POST['email']);die;
             }else{
-                $error = "<p class='text-danger font-weight-bold'>* Something Went Wrong </p>";
+                $error = "<div class='alert alert-danger'> Try Agian Later </div>";
             }
+            header('location:verification-code.php?email='.$_POST['email']);die;
         }else{
-            $error = "<p class='text-danger font-weight-bold'>* Wrong Code </p>";
-        }
+            $error = "<div class='alert alert-danger'> Something Went Wrong </div>";
+        }     
     }
 }
 
@@ -55,11 +51,11 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
                                 <div class="login-register-form">
                                     <?= $success ?? "" ?>
                                     <form action="" method="post">
-                                        <input type="number" name="verification_code" placeholder="Verification Code">
-                                        <?= $validation->getError('verification_code') ?>
+                                        <input type="email" name="email" placeholder="Email">
+                                        <?= $validation->getError('email') ?>
                                         <?= $error ?? "" ?>
                                         <div class="button-box">
-                                            <button type="submit"><span>Verify Code</span></button>
+                                            <button type="submit"><span>Verify Email Address</span></button>
                                         </div>
                                     </form>
                                 </div>

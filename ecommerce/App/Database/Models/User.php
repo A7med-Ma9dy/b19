@@ -273,8 +273,9 @@ class User extends Model implements Crud {
     {
         $query = "INSERT INTO users (first_name,last_name,email,phone,password,gender,verification_code) 
         VALUES (? ,? ,? ,? ,? ,? ,?)";
+        
         $stmt = $this->conn->prepare($query);
-        $stmt->bind_param('ssssssi',$this->fisrt_name,$this->last_name,$this->email,$this->phone,
+        $stmt->bind_param('ssssssi',$this->first_name,$this->last_name,$this->email,$this->phone,
         $this->password,$this->gender,$this->verification_code);
         return $stmt->execute();
     }
@@ -284,7 +285,17 @@ class User extends Model implements Crud {
     }
     public function update()
     {
-        # code...
+        if($this->image){
+            $query = "UPDATE users SET first_name = ? , last_name = ? , gender = ? , image = ? WHERE email = ?";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bind_param('sssss',$this->first_name,$this->last_name,$this->gender,$this->image,$this->email);
+        
+        }else{
+            $query = "UPDATE users SET first_name = ? , last_name = ? , gender = ? WHERE email = ?";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bind_param('ssss',$this->first_name,$this->last_name,$this->gender,$this->email);
+        }
+        return $stmt->execute();
     }
     public function delete()
     {
@@ -306,6 +317,23 @@ class User extends Model implements Crud {
         $stmt->bind_param('ss',$this->email_verified_at,$this->email);
         return $stmt->execute();
     }
+
+    public function updateCode()
+    {
+        $query = "UPDATE users SET verification_code = ? WHERE email = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param('ss',$this->verification_code,$this->email);
+        return $stmt->execute();
+    }
+    public function updatePassword()
+    {
+        $query = "UPDATE users SET password = ? WHERE email = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param('ss',$this->password,$this->email);
+        return $stmt->execute();
+    }
+    
+    
     public function getUserByEmail()
     {
         $query =  "SELECT * FROM users WHERE  email = ?";
@@ -314,6 +342,8 @@ class User extends Model implements Crud {
         $stmt->execute();
         return $stmt;
     }
+
+    
     
     
 }

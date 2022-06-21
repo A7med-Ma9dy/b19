@@ -4,15 +4,16 @@ include_once "layouts/header.php";
 include_once "App/Http/Middlewares/Guest.php";
 include_once "layouts/navbar.php";
 include_once "layouts/breadcrumb.php";
-use App\Http\Requests\Validation;
+use App\Mails\Mailer;
 use App\Database\Models\User;
+use App\Http\Requests\Validation;
 
 $validation = new Validation;
 
 if($_SERVER['REQUEST_METHOD'] == "POST"){
     # validation
-    $validation->setValueName('first_name')->setValue($_POST['first_name'])->required( )->max(32);
-    $validation->setValueName('last_name')->setValue($_POST['last_name'])->required( )->max(32);
+    $validation->setValueName('first_name')->setValue($_POST['first_name'])->required( );
+    $validation->setValueName('last_name')->setValue($_POST['last_name'])->required( );
     $validation->setValueName('email')->setValue($_POST['email'])->required( )->regex('/^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/')->unique('users','email');
     $validation->setValueName('phone')->setValue($_POST['phone'])->required( )->regex('/^01[0125][0-9]{8}$/')->unique('users','phone');
     $validation->setValueName('password')->setValue($_POST['password'])->required( )->regex('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,32}$/','Minimum eight and maximum 32 characters, at least one uppercase letter, one lowercase letter, one number and one special character')->confirmed($_POST['password_confirmation']);
@@ -27,9 +28,15 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
         ->setEmail($_POST['email'])->setPhone($_POST['phone'])->setPassword($_POST['password'])
         ->setGender($_POST['gender'])->setVerification_code($code);
         if($user->create()){
-            // send verification code
-            // redirect to verification code page
-            header('location:verification-code.php?email='.$_POST['email']);die;
+            $subject = "Verification Code";
+            $body = "<p> Hello {$_POST['first_name']} .</p><p> Your Verification Code :<b>{$code}</b> </p><p> Thank You.</p>";
+            $verificationCode = new Mailer($_POST['email'],$subject,$body);
+            if($verificationCode->send()){
+                // redirect to verification code page
+                header('location:verification-code.php?email='.$_POST['email']);die;
+            }else{
+                $error = "<div class='alert alert-danger'> Try Agian Later </div>";
+            }
         }else{
             $error = "<div class='alert alert-danger'> Registeration Failed </div>";
         }
@@ -46,12 +53,13 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
                         <a class="active" data-toggle="tab" href="#lg2">
                             <h4> register </h4>
                         </a>
-                        <?= $error ?? "" ?>
+                        
                     </div>
                     <div class="tab-content">
                         <div id="lg2" class="tab-pane active">
                             <div class="login-form-container">
                                 <div class="login-register-form">
+                                <?= $error ?? "" ?>
                                     <form action="" method="post">
                                         <input type="text" name="first_name" value="<?= $_POST['first_name'] ?? "" ?>" placeholder="Fisrt Name">
                                         <?= $validation->getError('first_name') ?>

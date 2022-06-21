@@ -24,11 +24,19 @@ class Validation {
     }
     public function max(int $max)
     {
-        if(strlen($this->value) > $max){
+        if($this->value > $max){
             $this->errors[$this->valueName][__FUNCTION__] = "{$this->valueName} Must Be Less Than {$max} Characters";
         }
         return $this;
     }
+    public function min(int $min)
+    {
+        if($this->value < $min){
+            $this->errors[$this->valueName][__FUNCTION__] = "{$this->valueName} Must Be More Than {$min} Characters";
+        }
+        return $this;
+    }
+    
 
     public function digits(int $digits)
     {
@@ -87,6 +95,25 @@ class Validation {
         }
         return $this;
     }
+    public function validUrlEmail(array $data)
+    {
+        if($data){
+            if(isset($data['email'])){
+                $validation = new Validation;
+                $validation->setValueName('email')->setValue($data['email'])->required()->regex('/^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/')->exists('users','email');
+                if(!empty($validation->getErrors())){
+                    include "layouts/errors/404.php";die;
+                }
+            }else{
+                include "layouts/errors/404.php";die;
+            }
+        }else{
+            include "layouts/errors/404.php";die;
+        }
+        return $this;
+    }
+
+    
 
     /**
      * Get the value of errors
