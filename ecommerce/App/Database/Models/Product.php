@@ -292,7 +292,11 @@ class Product extends Model implements Crud {
     }
     public function read()
     {
-        # code...
+        $query = "SELECT * FROM products WHERE status = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param('i',$this->status);
+        $stmt->execute();
+        return $stmt;
     }
     public function update()
     {
@@ -302,4 +306,23 @@ class Product extends Model implements Crud {
     {
         # code...
     }
+
+    public function productsByBrand()
+    {
+        $query = "SELECT * FROM products WHERE status = ? AND brand_id = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param('ii',$this->status,$this->brand_id);
+        $stmt->execute();
+        return $stmt;
+    }
+    public function productsBySubcategory()
+    {
+        $query = "SELECT * FROM products WHERE status = ? AND subcategory_id = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param('ii',$this->status,$this->subcategory_id);
+        $stmt->execute();
+        return $stmt;
+    }
+
+    
 }
