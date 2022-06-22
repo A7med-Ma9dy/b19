@@ -1,0 +1,21 @@
+# deadline => sunday 9:00 AM
+# 15
+task5 :
+
+# 10
+1. change password in my-account.php page
+2. Add Reveiw in product-details.php page
+3. Get Most 4 Recent Products (index.php)
+4. Get Most 4 Ordered Products (index.php)
+
+# 5
+1. Register module
+2. login module
+3. Mail Verification
+4. Forget Password
+5. Remember me
+6. My Account
+7. Index
+8. navbar
+9. shop (all products,all products by brands, all products by categories , all products by subcategories)
+10. product-details
