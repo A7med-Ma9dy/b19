@@ -2,6 +2,7 @@
 
 use App\Database\Models\Brand;
 use App\Database\Models\Product;
+use App\Database\Models\Category;
 use App\Database\Models\Subcategory;
 
 $title = "Shop";
@@ -13,6 +14,9 @@ $brandObject->setStatus(1);
 
 $subcategoryObject = new Subcategory;
 $subcategoryObject->setStatus(1);
+
+$categoryObject = new Category;
+$categoryObject->setStatus(1);
 
 $productObject = new Product;
 $productObject->setStatus(1);
@@ -45,8 +49,21 @@ if ($_GET) {
             include "layouts/errors/404.php";
             die;
         }
-    }elseif(true){
-
+    }elseif(isset($_GET['category'])){
+        if (is_numeric($_GET['category'])) {
+            $categoryObject->setId($_GET['category']);
+            if ($categoryObject->getCategoryById()->get_result()->num_rows == 1) {
+                $productObject->setCategory_id($_GET['category']);
+                $products = $productObject->productsByCategory()->get_result()->fetch_all(MYSQLI_ASSOC);
+            } else {
+                
+                include "layouts/errors/404.php";
+                die;
+            }
+        } else {
+            include "layouts/errors/404.php";
+            die;
+        }
     }else {
         include "layouts/errors/404.php";
         die;
@@ -94,7 +111,7 @@ if ($_GET) {
                                 <div class="product-width col-xl-4 col-lg-4 col-md-4 col-sm-6 col-12 mb-30">
                                     <div class="product-wrapper">
                                         <div class="product-img">
-                                            <a href="product-details.php">
+                                            <a href="product-details.php?product=<?= $product['id'] ?>">
                                                 <img alt="" src="assets/img/product/<?= $product['image'] ?>">
                                             </a>
 
@@ -114,11 +131,11 @@ if ($_GET) {
                                             <div class="product-hover-style">
                                                 <div class="product-title">
                                                     <h4>
-                                                        <a href="product-details.php"><?= $product['name_en'] ?></a>
+                                                        <a href="product-details.php?product=<?= $product['id'] ?>"><?= $product['name_en'] ?></a>
                                                     </h4>
                                                 </div>
                                                 <div class="cart-hover">
-                                                    <h4><a href="product-details.php">+ Add to cart</a></h4>
+                                                    <h4><a href="product-details.php?product=<?= $product['id'] ?>">+ Add to cart</a></h4>
                                                 </div>
                                             </div>
                                             <div class="product-price-wrapper">
@@ -127,7 +144,7 @@ if ($_GET) {
                                         </div>
                                         <div class="product-list-details">
                                             <h4>
-                                                <a href="product-details.php"><?= $product['name_en'] ?></a>
+                                                <a href="product-details.php?product=<?= $product['id'] ?>"><?= $product['name_en'] ?></a>
                                             </h4>
                                             <div class="product-price-wrapper">
                                                 <span><?= $product['price'] ?> EGP</span>

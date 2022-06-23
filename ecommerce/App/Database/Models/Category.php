@@ -166,4 +166,13 @@ class Category extends Model implements Crud {
     {
         # code...
     }
+    public function getCategoryById()
+    {
+        $query = "SELECT * FROM categories WHERE status = ? AND id = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param('ii',$this->status,$this->id);
+        $stmt->execute();
+        return $stmt;
+    }
+    
 }

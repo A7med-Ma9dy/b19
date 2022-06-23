@@ -4,7 +4,7 @@ namespace App\Database\Models;
 use App\Database\Models\Contracts\Crud;
 
 class Product extends Model implements Crud {
-    private $id,$name_en,$name_ar,$price,$code,$quantity,$desc_en,$desc_ar,$brand_id,$subcategory_id,$image,$status,
+    private $id,$name_en,$name_ar,$price,$code,$quantity,$desc_en,$desc_ar,$brand_id,$subcategory_id,$category_id,$image,$status,
     $created_at,$updated_at;
 
     /**
@@ -323,6 +323,62 @@ class Product extends Model implements Crud {
         $stmt->execute();
         return $stmt;
     }
-
+    public function productsByCategory()
+    {
+        $query = "SELECT * FROM product_details WHERE status = ? AND category_id = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param('ii',$this->status,$this->category_id);
+        $stmt->execute();
+        return $stmt;
+    }
     
+    
+
+    /**
+     * Get the value of category_id
+     */ 
+    public function getCategory_id()
+    {
+        return $this->category_id;
+    }
+
+    /**
+     * Set the value of category_id
+     *
+     * @return  self
+     */ 
+    public function setCategory_id($category_id)
+    {
+        $this->category_id = $category_id;
+
+        return $this;
+    }
+    
+
+    public function getById()
+    {
+        $query = "SELECT * FROM product_details WHERE status = ? AND id = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param('ii',$this->status,$this->id);
+        $stmt->execute();
+        return $stmt;
+    }
+
+    public function getReviews()
+    {
+        $query =    "SELECT 
+                        CONCAT(`users`.`first_name` , ' ' , `users`.`last_name`) AS `full_name`,
+                        `reviews`.`product_id`,
+                        `reviews`.`rate`,
+                        `reviews`.`comment`,
+                        `reviews`.`created_at`
+                    FROM `reviews`
+                    JOIN `users`
+                    ON `reviews`.`user_id` = `users`.`id`
+                    WHERE `reviews`.`product_id` = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param('i',$this->id);
+        $stmt->execute();
+        return $stmt;
+    }
 }

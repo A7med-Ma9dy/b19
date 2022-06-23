@@ -34,7 +34,7 @@ use App\Database\Models\Subcategory;
                                             <?php foreach($categories AS $category) { ?>
                                                 <li>
                                                     <ul>
-                                                        <li class="mega-menu-title"><?= $category['name_en'] ?></li>
+                                                        <li class="font-weight-bold" class="mega-menu-title"><a class="font-weight-bold" href="shop.php?category=<?= $category['id'] ?>"><?= $category['name_en'] ?></a></li>
                                                         <?php 
                                                         $subcategoriesObject->setCategory_id($category['id']);
                                                         $subcategories = $subcategoriesObject->subcategoriesByCategory()->get_result()->fetch_all(MYSQLI_ASSOC);
