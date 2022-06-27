@@ -16,7 +16,7 @@
             @endif
         </div>
         <div class="col-12 example1_wrapper">
-            <table id="example1" class="table table-bordered table-striped">
+            <table id="example1" class="table table-bordered table-striped text-center">
                 <thead>
                     <tr>
                         <th>Id</th>
@@ -31,19 +31,44 @@
                 </thead>
                 <tbody>
                     @foreach ($products as $product)
-                    <tr>
-                        <td>{{$product->id}}</td>
-                        <td>{{$product->code}}</td>
-                        <td>{{$product->name_en}} - {{$product->name_ar}}</td>
-                        <td>{{$product->price}}</td>
-                        <td>{{$product->quantity}}</td>
-                        <td>{{$product->status}}</td>
-                        <td>{{$product->created_at}}</td>
-                        <td>
-                            <a href="{{route('dashboard.products.edit', ['id' => $product->id])}}" class="btn btn-outline-primary btn-xs"> Edit </a>
-                            <a href="#" class="btn btn-outline-danger btn-xs"> Delete </a>
-                        </td>
-                    </tr>
+                        <tr>
+                            <td>{{ $product->id }}</td>
+                            <td>{{ $product->code }}</td>
+                            <td>{{ $product->name_en }} - {{ $product->name_ar }}</td>
+                            <td>{{ $product->price }}</td>
+                            <td @class([
+                                'font-weight-bold',
+                                'text-danger' => $product->quantity == 0,
+                                'text-success' => $product->quantity >= 10,
+                                'text-warning' => $product->quantity < 10 && $product->quantity > 0,
+                            ])>{{ $product->quantity }}
+                                @if ($product->quantity == 0)
+                                    <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                                @elseif($product->quantity < 10 && $product->quantity > 0)
+                                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                @endif
+                            </td>
+                            <td>
+                                <form class="statusForm" action="{{route('dashboard.products.updateStatus',['id'=>$product->id,'status'=>$product->status])}}" method="post">
+                                    <input type="checkbox" name="status" class="checkbox"
+                                    {{$product->status == 1 ? 'checked' : ''}} data-bootstrap-switch
+                                        data-off-color="danger" data-on-color="success">
+                                    @csrf
+                                    @method('PATCH')
+                                </form>
+                            </td>
+                            <td>{{ $product->created_at }}</td>
+                            <td>
+                                <a href="{{ route('dashboard.products.edit', ['id' => $product->id]) }}"
+                                    class="btn btn-outline-primary btn-xs"> Edit </a>
+                                <form action="{{ route('dashboard.products.destroy', ['id' => $product->id]) }}"
+                                    method="post" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="btn btn-outline-danger btn-xs"> Delete </button>
+                                </form>
+                            </td>
+                        </tr>
                     @endforeach
                 </tbody>
             </table>
@@ -65,14 +90,27 @@
     <script src="{{ asset('plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
     <script src="{{ asset('plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
     <script src="{{ asset('plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
+    <!-- Bootstrap Switch -->
+    <script src="{{ asset('plugins/bootstrap-switch/js/bootstrap-switch.min.js') }}"></script>
     <script>
         $(function() {
             $("#example1").DataTable({
                 "responsive": true,
                 "lengthChange": false,
                 "autoWidth": false,
-                "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+                "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                "initComplete": function(settings, json) {
+                    $("input[data-bootstrap-switch]").each(function() {
+                        $(this).bootstrapSwitch('state', $(this).prop('checked'));
+                    });
+                }
             }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+            $("input[data-bootstrap-switch]").each(function() {
+                $(this).bootstrapSwitch('state', $(this).prop('checked'));
+            });
+            $('input[name="status"]').on('switchChange.bootstrapSwitch', function(event, state) {
+                $(this).parents('.statusForm')[0].submit();
+            });
         });
     </script>
 @endsection

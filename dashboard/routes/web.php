@@ -1,8 +1,9 @@
 <?php
 
-use App\Http\Controllers\Admin\ProductController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Admin\ProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,8 +19,19 @@ use App\Http\Controllers\DashboardController;
 Route::get('/', function () {
     return view('welcome');
 });
-Route::get('dashboard',DashboardController::class)->name('dashboard');
-Route::get('dashboard/products',[ProductController::class,'index'])->name('dashboard.products.index');
-Route::get('dashboard/products/create',[ProductController::class,'create'])->name('dashboard.products.create');
-Route::get('dashboard/products/edit/{id}',[ProductController::class,'edit'])->name('dashboard.products.edit');
-Route::post('dashboard/products/store',[ProductController::class,'store'])->name('dashboard.products.store');
+Route::get('dashboard', DashboardController::class)->name('dashboard');
+Route::prefix('dashboard')->name('dashboard.')->group(function () {
+    Route::prefix('products')->name('products.')->controller(ProductController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::get('/edit/{id}', 'edit')->name('edit');
+        Route::post('/store', 'store')->name('store');
+        Route::put('/update/{id}', 'update')->name('update');
+        Route::patch('/update/{id}/status/{status}', 'updateStatus')->name('updateStatus');
+        Route::delete('/destroy/{id}', 'destroy')->name('destroy');
+    });
+});
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
