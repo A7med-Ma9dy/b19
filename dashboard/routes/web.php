@@ -19,10 +19,10 @@ use App\Http\Controllers\Admin\ProductController;
 Route::get('/', function () {
     return view('welcome');
 });
-Route::get('dashboard', DashboardController::class)->name('dashboard');
-Route::prefix('dashboard')->name('dashboard.')->group(function () {
+Route::prefix('dashboard')->name('dashboard.')->middleware('auth')->group(function () {
+    Route::get('/', DashboardController::class)->name('index');
     Route::prefix('products')->name('products.')->controller(ProductController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
+        Route::get('/', 'index')->name('index'); //dashboard/products
         Route::get('/create', 'create')->name('create');
         Route::get('/edit/{id}', 'edit')->name('edit');
         Route::post('/store', 'store')->name('store');
